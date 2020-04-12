@@ -22,5 +22,8 @@
   "homepage": "https://github.com/shanet/WebRTC-Example#readme",
   "dependencies": {
     "ws": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0"
   }
 }
