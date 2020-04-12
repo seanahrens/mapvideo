@@ -1,26 +1,13 @@
 
-var KEYCODE_LEFT = 37;		//useful keycode
-var KEYCODE_RIGHT = 39;		//useful keycode
-var KEYCODE_UP = 38;		//useful keycode
-var KEYCODE_DOWN = 40;		//useful keycode
-var SQUARE_SIZE = 20;
-var BOARD_SIZE_X = 30;
-var BOARD_SIZE_Y = 20;
 
-//register key functions
-document.onkeydown = handleKeyDown;
+// GAMEBOARD DIMENSIONS
+var BOARD_SQUARES_X = 30;
+var BOARD_SQUARES_Y = 20;
+var SQUARE_SIZE_IN_PIXELS = 20;
 
-var circle;
-var stage;
 
-var is_legal_square = [];
-for(var i=0; i<BOARD_SIZE_X; i++) {
-  is_legal_square[i] = [];
-  for(var j=0; j<BOARD_SIZE_Y; j++) {
-      is_legal_square[i][j] = true;
-  }
-}
-
+// USER OBJECTS (REPLACE W/ QUERYSNAPSHOTS)
+// how do we tie user in DB to which user in the browser? some session ID? IP?
 var users = {
   1: {
     color: "red",
@@ -38,55 +25,84 @@ var users = {
     y: 6
   }
 };
-// for some reason x validity check is not working
-function isInBounds(x,y){
-  return ((x >= 0) && (y >= 0) && (x<BOARD_SIZE_X) && (y<BOARD_SIZE_Y));
+
+// HANDLE KEY PRESSES
+document.onkeydown = handleKeyDown;
+var KEYCODE_LEFT = 37;
+var KEYCODE_RIGHT = 39;
+var KEYCODE_UP = 38;
+var KEYCODE_DOWN = 40;
+
+// MATRIX REPRESENTING ALL LEGAL MOVES (Moves where other pawns are not)
+var is_legal_square = [];
+for(var i=0; i<BOARD_SQUARES_X; i++) {
+  is_legal_square[i] = [];
+  for(var j=0; j<BOARD_SQUARES_Y; j++) {
+      is_legal_square[i][j] = true;
+  }
 }
+
+var pawn;
+var stage;
+
+// SET UP INITIAL GAMEBOARD STATE AND PAWN POSITIONS
 function init() {
   stage = new createjs.Stage("gameboard");
 
   Object.keys(users).forEach(user_id => {
     var user = users[user_id];
-    var color = user.color;
-    var x = user.x;
-    var y = user.y;
+    let color = user.color;
+    let x = user.x;
+    let y = user.y;
 
     // Initial Creation & Placement of Circle
-    circle = new createjs.Shape();
-    circle.graphics.beginFill(color).drawCircle(0, 0, SQUARE_SIZE/2);
-    circle.x = toPixel(x);
-    circle.y = toPixel(y);
-    is_legal_square[x][y]=false; //prevent others from moving into here
-    stage.addChild(circle);
-
+    pawn = new createjs.Shape();
+    pawn.graphics.beginFill(color).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
+    pawn.x = toPixel(x);
+    pawn.y = toPixel(y);
+    is_legal_square[x][y] = false; //prevent others from moving here
+    stage.addChild(pawn);
   });
 
-  //Update stage will render next frame
   stage.update();
 }
 
-function toPixel(z){
-  return (z*SQUARE_SIZE)+(SQUARE_SIZE/2);
-}
-function toSquare(z){
-  return (z-(SQUARE_SIZE/2))/SQUARE_SIZE;
-}
 
+// MOVE PAWN (MAKING SURE IT'S A VALID MOVE)
 function move(x,y){
-  oldX = toSquare(circle.x);
-  oldY = toSquare(circle.y);
+  oldX = PixelToSquare(pawn.x);
+  oldY = PixelToSquare(pawn.y);
   newX = oldX + x;
   newY = oldY + y;
 
   if ((isInBounds(newX,newY) && (is_legal_square[newX][newY]===true))){
     is_legal_square[oldX][oldY]=true; //mark old spot as free
     is_legal_square[newX][newY]=false; //mark new spot as occupied
-    circle.x = toPixel(newX);
-    circle.y = toPixel(newY);
+
+    pawn.x = SquareToPixel(newX);
+    pawn.y = SquareToPixel(newY);
+    // TO DO: MAKE THIS MOVE WITH THE DATABASE;
+
     stage.update();
   }
 }
 
+// Make sure pawn wouldn't fall off the board.
+function isInBounds(x,y){
+  return ((x >= 0) && (y >= 0) && (x<BOARD_SQUARES_X) && (y<BOARD_SQUARES_Y));
+}
+// Translate Square to Which Pixel the center of the Pawn should be placed.
+function SquareToPixel(z){
+  return (z*SQUARE_SIZE_IN_PIXELS)+(SQUARE_SIZE_IN_PIXELS/2);
+}
+// Translate Pixel to Which Square This Is
+function PixelToSquare(z){
+  return (z-(SQUARE_SIZE_IN_PIXELS/2))/SQUARE_SIZE_IN_PIXELS;
+}
+
+
+
+// HANDLE KEYBOARD INPUT
 function handleKeyDown(e) {
 	//cross browser issues exist
 	if (!e) {
