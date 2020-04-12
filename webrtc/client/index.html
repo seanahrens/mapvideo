@@ -7,14 +7,20 @@
   </head>
 
   <body onload="init();"">
-    <canvas id="gameboard" width="600" height="400" style="border: 1px solid brown;"></canvas>
+    <center>
+      <canvas id="gameboard" width="600" height="400" style="border: 1px solid brown;"></canvas>
 
-    <video id="localVideo" autoplay muted style="width:40%;"></video>
-    <video id="remoteVideo" autoplay style="width:40%;"></video>
+      <video id="localVideo" autoplay muted style="width:40%;"></video>
+      <video id="remoteVideo" autoplay style="width:40%;"></video>
 
-    <br />
+      <br />
 
-    <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
+      <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
+
+      <p style="font-size:8px;color:gray;">Icons licensed from <a href="https://fontawesome.com/license/free">Font Awesome</a></p>
+    </center>
+
+
     <script type="text/javascript">
         /* pageReady(); */
     </script>
@@ -49,6 +55,6 @@
   <script src="database.js"></script>
   <script src="gameboard.js"></script>
 
-  <center><p style="font-size:8px;color:gray;">Icons licensed from <a href="https://fontawesome.com/license/free">Font Awesome</a></p></center>
+
   </body>
 </html>
