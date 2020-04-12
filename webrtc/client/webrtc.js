@@ -1,5 +1,4 @@
 var localVideo;
-var otherVideos;
 var localStream;
 
 
@@ -19,7 +18,6 @@ function pageReady() {
   console.log("OWN UUID", uuid)
 
   localVideo = document.getElementById('localVideo');
-  otherVideos = document.getElementById('otherVideos');
 
   const ws_port = fetch('/websockets_port')
     .then((response) => {
@@ -43,7 +41,7 @@ function connectWebsocket(port) {
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(getUserMediaSuccess)
-      .catch(errorHandler("getUserMedia"));
+      .catch(errorHandler);
   } else {
     alert('Your browser does not support getUserMedia API');
   }
@@ -62,7 +60,6 @@ function start(isCaller, id) {
     pc.onicecandidate = gotIceCandidate;
     pc.ontrack = gotRemoteStream;
     pc.addStream(localStream);
-    console.log("added local stream", localStream)
     if(isCaller){
       peerConnections[uuid] = pc;
     } else {
@@ -71,18 +68,17 @@ function start(isCaller, id) {
   }
 
   if (isCaller) {
-    peerConnections[uuid].createOffer().then(createdDescription(uuid))
-    .catch(errorHandler("CreateOfferStart"));
+    peerConnections[uuid].createOffer().then(createdDescription(uuid)).catch(errorHandler);
   }
 }
 
 function gotMessageFromServer(message) {
   
   var signal = JSON.parse(message.data);
+  console.log("Message from server", signal)
   
   // Ignore messages from ourself
   if (signal.uuid == uuid) return;
-  console.log("Message from server", signal)
 
   start(false, signal.uuid);
   
@@ -90,11 +86,9 @@ function gotMessageFromServer(message) {
     peerConnections[signal.uuid].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
       // Only create answers in response to offers
       if (signal.sdp.type == 'offer') {
-        peerConnections[signal.uuid].createAnswer().then(createdDescription(signal.uuid))
-        .catch(errorHandler("CreateSdpAnswer"));
+        peerConnections[signal.uuid].createAnswer().then(createdDescription(signal.uuid)).catch(errorHandler);
       }
-    })
-    .catch(errorHandler);
+    }).catch(errorHandler);
   } else if (signal.ice) {
     var candidate = new RTCIceCandidate(signal.ice);
     // var receivers = peerConnections[signal.uuid].getReceivers();
@@ -104,7 +98,7 @@ function gotMessageFromServer(message) {
   
   
     peerConnections[signal.uuid].addIceCandidate(signal.ice)
-      .catch(errorHandler("AddIceCandidate"));
+      .catch(errorHandler);
 
 
 
@@ -112,7 +106,6 @@ function gotMessageFromServer(message) {
 }
 
 function gotIceCandidate(event) {
-  console.log("got ice candidate", event)
   if (event.candidate != null) {
     serverConnection.send(JSON.stringify({ 'ice': event.candidate, 'uuid': uuid }));
   }
@@ -121,21 +114,19 @@ function gotIceCandidate(event) {
 function createdDescription(id) {
   return function (description) {
     console.log('got description', description);
-    console.log(peerConnections)
+
     peerConnections[id].setLocalDescription(description).then(function () {
       serverConnection
-        .send(JSON.stringify({ 'sdp': description, 'uuid': uuid }));
-    })
-    .catch(errorHandler("setLocalDescription"));
+        .send(JSON.stringify({ 'sdp': peerConnection.localDescription, 'uuid': uuid }));
+    }).catch(errorHandler);
 }
 }
 
 function createVideoElement() {
   console.log("Creating video element")
   var video = document.createElement("video");
-  video.style = "width:40%"
   video.autoplay = true;
-  otherVideos.appendChild(video);
+  document.body.appendChild(video);
   return video;
 }
 
@@ -144,15 +135,12 @@ function gotRemoteStream(event) {
   console.log("Got remote stream" ,event)
   if (event.track.kind == "video"){
     var remoteVideo = createVideoElement()
-    localVideo.srcObject = event.streams[0];
+    remoteVideo.srcObject = event.streams[0];
   }
 }
 
-function errorHandler(where){
-  return function(error) {
-    // throw error
-    console.error(where,"---", error);
-  }
+function errorHandler(error) {
+  console.error("ERROR", error);
 }
 
 // Taken from http://stackoverflow.com/a/105074/515584
