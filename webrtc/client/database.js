@@ -5,7 +5,8 @@
 var database = firebase.database();
 var rootRef = database.ref("rooms/r1")
 var usersRef = rootRef.child("users")
-var USERID = usersRef.push().key
+var USERID = null
+
 
 
 function createNewUser() {
@@ -23,10 +24,24 @@ function getUserID() {
 }
 
 function databaseInit(callback) {
-  createNewUser()
-  setInterval ( function() {
-       getUserPositions(callback)
-   }, 200);
+  signInUser()
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var isAnonymous = user.isAnonymous;
+      USERID = user.uid;
+      console.log("USER ID: " + USERID)
+      createNewUser()
+      setInterval ( function() {
+           getUserPositions(callback)
+       }, 200);
+    } else {
+      // User is signed out.
+      // ...
+    }
+    // ...
+  });
+
 }
 
 function updateUserPosition(user) {
@@ -53,10 +68,21 @@ function getPositionsFrom(snapshot) {
   return positions;
 };
 
-function sayHi() {
-  console.log("hi")
-}
 
-// function eucDistance(user1, user2) {
-//   var
-// }
+function signInUser() {
+  firebase.auth().signInAnonymously().catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // ...
+
+    console.log(error)
+  });
+}
+function distance(user1, user2) {
+  if (user1 != null && user2 != null) {
+    var heightDiff = Math.abs(user1.y - user2.y);
+    var widthDiff = Math.abs(user1.x - user2.x);
+    return Math.sqrt(pow(heightDiff,2) + pow(widthDiff,2));
+  }
+}
