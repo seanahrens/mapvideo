@@ -6,9 +6,8 @@ var database = firebase.database();
 var rootRef = database.ref("rooms/r1")
 var usersRef = rootRef.child("users")
 var USERID = usersRef.push().key
-setInterval ( function() {
-     getUserPositions(console.log)
- }, 1000);
+
+
 function createNewUser() {
   var userData = {
     x: 0,
@@ -25,7 +24,9 @@ function getUserID() {
 
 function databaseInit(callback) {
   createNewUser()
-  getUserPositions(callback)
+  setInterval ( function() {
+       getUserPositions(callback)
+   }, 500);
 }
 
 function updateUserPosition(user) {
