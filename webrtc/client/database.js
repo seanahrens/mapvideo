@@ -6,7 +6,9 @@ var database = firebase.database();
 var rootRef = database.ref("rooms/r1")
 var usersRef = rootRef.child("users")
 var USERID = usersRef.push().key
-
+setInterval ( function() {
+     getUserPositions(console.log)
+ }, 1000);
 function createNewUser() {
   var userData = {
     x: 0,
@@ -50,6 +52,9 @@ function getPositionsFrom(snapshot) {
   return positions;
 };
 
+function sayHi() {
+  console.log("hi")
+}
 
 // function eucDistance(user1, user2) {
 //   var
