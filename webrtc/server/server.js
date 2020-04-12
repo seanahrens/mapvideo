@@ -34,22 +34,15 @@ const io = require('socket.io')(httpsServer, { origins: '*:*'});
 io.origins('*:*') 
 io.sockets.on('connection', function (socket) {
   console.log("Got connection");
-  socket.on('message', function (data) {
-    console.log("Got Data", data);
-      socket.broadcast.emit('message', data);
-  });
   socket.on('new-channel', function (data) {
-    console.log("Got Data", data);
+    console.log("Got new-channel", data);
       socket.broadcast.emit('message', data);
   });
   socket.on('message', function (data) {
-    console.log("Got Data", data);
+    console.log("Got message", data);
       socket.broadcast.emit('message', data);
   });
-  socket.on('message', function (data) {
-    console.log("Got Data", data);
-      socket.broadcast.emit('message', data);
-  });
+
 });
 
 

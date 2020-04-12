@@ -8,13 +8,13 @@ var config = {
         console.log(channel)
         var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
+        var socket = io.connect(SIGNALING_SERVER, {secure: true}).emit('new-channel', {
             channel: channel,
             sender: sender
         });
 
-        var socket = io.connect(SIGNALING_SERVER + channel);
         socket.channel = channel;
+
         socket.on('connection', function () {
             console.log("Connected to signaling server")
             if (config.callback) config.callback(socket);
