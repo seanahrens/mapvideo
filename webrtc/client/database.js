@@ -26,7 +26,7 @@ function databaseInit(callback) {
   createNewUser()
   setInterval ( function() {
        getUserPositions(callback)
-   }, 500);
+   }, 200);
 }
 
 function updateUserPosition(user) {

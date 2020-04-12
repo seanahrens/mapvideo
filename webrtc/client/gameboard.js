@@ -75,6 +75,8 @@ function placePawns(users){
         pawn.graphics.beginFill(determineColor(user_id)).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
         stage.addChild(pawn);
         pawnMap[user_id] = pawn;
+      } else { // This is a redraw. Free up the old space.
+        is_legal_square[PixelToSquare(pawn.x)][PixelToSquare(pawn.y)]= true; //mark old spot as free
       }
 
       // Set/Update All Pawn Positions
