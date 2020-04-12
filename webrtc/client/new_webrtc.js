@@ -1,9 +1,11 @@
 var config = {
     openSocket: function (config) {
-        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/',
+        var SIGNALING_SERVER = 'https://'+location.hostname+':8443/',
             defaultChannel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
+        console.log(SIGNALING_SERVER)
         var channel = config.channel || defaultChannel;
+        console.log(channel)
         var sender = Math.round(Math.random() * 999999999) + 999999999;
 
         io.connect(SIGNALING_SERVER).emit('new-channel', {
@@ -13,7 +15,8 @@ var config = {
 
         var socket = io.connect(SIGNALING_SERVER + channel);
         socket.channel = channel;
-        socket.on('connect', function () {
+        socket.on('connection', function () {
+            console.log("Connected to signaling server")
             if (config.callback) config.callback(socket);
         });
 
@@ -61,6 +64,7 @@ var config = {
         };
     }
 };
+
 
 var conferenceUI = conference(config);
 var videosContainer = document.getElementById('videos-container') || document.body;

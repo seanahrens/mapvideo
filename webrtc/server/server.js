@@ -3,8 +3,7 @@ var http = require('http');
 const https = require('https');
 var express = require('express');
 
-const WebSocket = require('ws');
-const WebSocketServer = WebSocket.Server;
+
 
 // Yes, TLS is required
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
@@ -13,7 +12,10 @@ const serverConfig = {
   cert: fs.readFileSync('cert.pem'),
 };
 
-// ----------------------------------------------------------------------------------------
+
+
+
+
 
 // Create a server for the client html page
 var app = express();
@@ -27,6 +29,29 @@ httpsServer.listen(HTTPS_PORT, '0.0.0.0', null, () => {
   console.log(`HTTPS: App listening on port ${HTTPS_PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
+
+const io = require('socket.io')(httpsServer, { origins: '*:*'});
+io.origins('*:*') 
+io.sockets.on('connection', function (socket) {
+  console.log("Got connection");
+  socket.on('message', function (data) {
+    console.log("Got Data", data);
+      socket.broadcast.emit('message', data);
+  });
+  socket.on('new-channel', function (data) {
+    console.log("Got Data", data);
+      socket.broadcast.emit('message', data);
+  });
+  socket.on('message', function (data) {
+    console.log("Got Data", data);
+      socket.broadcast.emit('message', data);
+  });
+  socket.on('message', function (data) {
+    console.log("Got Data", data);
+      socket.broadcast.emit('message', data);
+  });
+});
+
 
 
 
@@ -43,23 +68,6 @@ http.createServer(function (req, res) {
 
 // ----------------------------------------------------------------------------------------
 
-// Create a server for handling websocket calls
-const wss = new WebSocketServer({server: httpsServer});
 
-wss.on('connection', function(ws) {
-  ws.on('message', function(message) {
-    // Broadcast any received message to all clients
-    console.log('received: %s', message);
-    wss.broadcast(message);
-  });
-});
-
-wss.broadcast = function(data) {
-  this.clients.forEach(function(client) {
-    if(client.readyState === WebSocket.OPEN) {
-      client.send(data);
-    }
-  });
-};
 
 console.log('\n\nServer running. Visit https://localhost:' + HTTPS_PORT + ' in Firefox/Chrome.\n\n');

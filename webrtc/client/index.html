@@ -2,28 +2,39 @@
 <html>
   <head>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script src="webrtc.js"></script>
+ 
     <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/video-conferencing/RTCPeerConnection-v1.5.js"> </script>
+    <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+
   </head>
 
-  <body onload="init();"">
+  <body onload="init();">
     <canvas id="gameboard" width="600" height="400" style="background-color: beige; border: 1px solid brown;"></canvas>
 
-    <video id="localVideo" autoplay muted style="width:40%;"></video>
-    <video id="other1" autoplay muted style="width:40%;"></video>
-    <div id="otherVideos" style="background-color: blue; width:40%;">
+    <section class="experiment">
+      <section>
 
-    </div>
+          <input type="text" id="conference-name" placeholder="Conference Name" style="width: 50%;">
+          <button id="setup-new-room" class="setup">Setup New Conference</button>
+      </section>
 
-    <br />
+      <!-- list of all available conferencing rooms -->
+      <table style="width: 100%;" id="rooms-list"></table>
 
-    <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
-    <script type="text/javascript">
-        /* pageReady(); */
-    </script>
+      <!-- local/remote videos container -->
+      <div id="videos-container"></div>
+  </section>
+
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+
 
   <!-- TODO: Add SDKs for Firebase products that you want to use
        https://firebase.google.com/docs/web/setup#available-libraries -->
@@ -51,8 +62,7 @@
 
   <script src="database.js"></script>
   <script src="gameboard.js"></script>
-  <script>
-    pageReady()
-  </script>
+  <script src="conference.js"></script>
+  <script src="new_webrtc.js"></script>
   </body>
 </html>
