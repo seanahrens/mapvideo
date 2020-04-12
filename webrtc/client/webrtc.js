@@ -7,8 +7,8 @@ var serverConnection;
 
 var peerConnectionConfig = {
   'iceServers': [
-    {'urls': 'stun:stun.stunprotocol.org:3478'},
-    {'urls': 'stun:stun.l.google.com:19302'},
+    { 'urls': 'stun:stun.stunprotocol.org:3478' },
+    { 'urls': 'stun:stun.l.google.com:19302' },
   ]
 };
 
@@ -18,7 +18,17 @@ function pageReady() {
   localVideo = document.getElementById('localVideo');
   remoteVideo = document.getElementById('remoteVideo');
 
-  serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
+  const ws_port = fetch('/websockets_port')
+    .then((response) => {
+      return response.json();
+    })
+    .then(connectWebsocket);
+  console.log(ws_port);
+}
+
+function connectWebsocket(port) {
+  console.log(port)
+  serverConnection = new WebSocket('wss://' + window.location.hostname + ':' + port.port);
   serverConnection.onmessage = gotMessageFromServer;
 
   var constraints = {
@@ -26,12 +36,13 @@ function pageReady() {
     audio: true,
   };
 
-  if(navigator.mediaDevices.getUserMedia) {
+  if (navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
   } else {
     alert('Your browser does not support getUserMedia API');
   }
 }
+
 
 function getUserMediaSuccess(stream) {
   localStream = stream;
@@ -44,42 +55,42 @@ function start(isCaller) {
   peerConnection.ontrack = gotRemoteStream;
   peerConnection.addStream(localStream);
 
-  if(isCaller) {
+  if (isCaller) {
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
   }
 }
 
 function gotMessageFromServer(message) {
-  if(!peerConnection) start(false);
+  if (!peerConnection) start(false);
 
   var signal = JSON.parse(message.data);
 
   // Ignore messages from ourself
-  if(signal.uuid == uuid) return;
+  if (signal.uuid == uuid) return;
 
-  if(signal.sdp) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+  if (signal.sdp) {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
       // Only create answers in response to offers
-      if(signal.sdp.type == 'offer') {
+      if (signal.sdp.type == 'offer') {
         peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
       }
     }).catch(errorHandler);
-  } else if(signal.ice) {
+  } else if (signal.ice) {
     peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
   }
 }
 
 function gotIceCandidate(event) {
-  if(event.candidate != null) {
-    serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': uuid}));
+  if (event.candidate != null) {
+    serverConnection.send(JSON.stringify({ 'ice': event.candidate, 'uuid': uuid }));
   }
 }
 
 function createdDescription(description) {
   console.log('got description');
 
-  peerConnection.setLocalDescription(description).then(function() {
-    serverConnection.send(JSON.stringify({'sdp': peerConnection.localDescription, 'uuid': uuid}));
+  peerConnection.setLocalDescription(description).then(function () {
+    serverConnection.send(JSON.stringify({ 'sdp': peerConnection.localDescription, 'uuid': uuid }));
   }).catch(errorHandler);
 }
 
