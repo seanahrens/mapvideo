@@ -187,7 +187,7 @@ function determineColor(string){
 }
 
 function determineIcon(string){
-  return icons[string.charCodeAt(string.length-1) % (icons.length)];
+  return icons[string.charCodeAt(string.length-2) % (icons.length)];
 }
 
 
