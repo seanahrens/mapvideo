@@ -22,23 +22,49 @@ function createNewUser() {
 function getUserID() {
   return USERID
 }
-
+function waitFor(callback, failCallback) {
+  const MAX_TIME = 5000
+  var wait = 200
+  var time = 0
+  var interval = setInterval(function() {
+    if (USERID) {
+      clearInterval(interval);
+      callback();
+    } else {
+      time += wait
+      if (time >= MAX_TIME) {
+        clearInterval(interval)
+        failCallback();
+        return
+      }
+    }
+  }, wait);
+}
+function userFoundExample() {
+  console.log("user found returned")
+}
+function userNotFoundExample() {
+  alert("User Not Found")
+}
 function databaseInit(callback) {
+  console.log("starting")
+  waitFor(userFoundExample, userNotFoundExample)
   signInUser()
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
       var isAnonymous = user.isAnonymous;
       USERID = user.uid;
-      console.log("USER ID: " + USERID)
       createNewUser()
       setInterval ( function() {
            getUserPositions(callback)
        }, 200);
+
     } else {
       // User is signed out.
       // ...
     }
+
     // ...
   });
 
@@ -79,10 +105,25 @@ function signInUser() {
     console.log(error)
   });
 }
+
+function videoOpacity(user1, user2){
+  const MAX_DIST = 1000
+  const FULL_OPACITY = 1
+  let distance = distance(user1, user2)
+  if (distance < 0) {
+    return 0
+  } else if (distance == 0) {
+    return FULL_OPACITY
+  } else if (distance <= MAX_DIST) {
+      return FULL_OPACITY - (distance/MAX_DIST)
+  } else {
+    return FULL_OPACITY
+  }
+}
 function distance(user1, user2) {
   if (user1 != null && user2 != null) {
     var heightDiff = Math.abs(user1.y - user2.y);
     var widthDiff = Math.abs(user1.x - user2.x);
     return Math.sqrt(pow(heightDiff,2) + pow(widthDiff,2));
-  }
+  } else { return - 1 }
 }

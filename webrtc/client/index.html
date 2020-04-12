@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="webrtc.js"></script>
     <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+
+    <!-- Optional theme -->
+
+
   </head>
 
-  <body onload="init();"">
+  <body onload="init();">
+    <container>
+    <h1> Welcome to your Vidspace </h1>
+    <div id="instructions">
+      <p>Every person is given a circle with a unique color</p>
+      <p>You may walk around your vidspace using your arrow keys</p>
+      <p>By moving closer to other people, you can start video chats with them</p>
+
+    </div>
+  </container>
     <canvas id="gameboard" width="600" height="400" style="background-color: beige; border: 1px solid brown;"></canvas>
 
     <video id="localVideo" autoplay muted style="width:40%;"></video>
@@ -48,6 +66,7 @@
 
   <script src="database.js"></script>
   <script src="gameboard.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
 
   </body>
 </html>
