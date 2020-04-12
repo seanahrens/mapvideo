@@ -96,8 +96,6 @@ function placePawns(users){
 
 // MOVE PAWN (MAKING SURE IT'S A VALID MOVE)
 function move(x,y){
-  console.log(myPawn);
-
   oldX = PixelToSquare(myPawn.x);
   oldY = PixelToSquare(myPawn.y);
   newX = oldX + x;
@@ -112,7 +110,7 @@ function move(x,y){
 
     updateUserPosition({
       x: newX,
-      y: newY;
+      y: newY
     });
 
     stage.update();

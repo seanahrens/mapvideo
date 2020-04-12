@@ -7,6 +7,7 @@ var rootRef = database.ref("rooms/r1")
 var usersRef = rootRef.child("users")
 var USERID = usersRef.push().key
 
+
 function createNewUser() {
   var userData = {
     x: 0,
@@ -23,7 +24,9 @@ function getUserID() {
 
 function databaseInit(callback) {
   createNewUser()
-  getUserPositions(callback)
+  setInterval ( function() {
+       getUserPositions(callback)
+   }, 500);
 }
 
 function updateUserPosition(user) {
@@ -50,6 +53,9 @@ function getPositionsFrom(snapshot) {
   return positions;
 };
 
+function sayHi() {
+  console.log("hi")
+}
 
 // function eucDistance(user1, user2) {
 //   var
