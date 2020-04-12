@@ -2,12 +2,11 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css" />
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
- 
     <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -17,6 +16,7 @@
     <script src="https://cdn.webrtc-experiment.com/video-conferencing/RTCPeerConnection-v1.5.js"> </script>
     <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+    <script src="webrtc.js"></script>
 
   </head>
 
@@ -27,14 +27,19 @@
       <h1> Welcome to your Vidspace </h1>
       <div id="instructions">
         <p>Every person is given a little person with a unique color</p>
-        <p>You may travel around your Vidspace using your arrow keys</p>
+        <p>Use your Arrow Keys to travel around your Vidspace</p>
         <p>By moving closer to other people, you will start a video chat with the people around you</p>
 
       </div>
     </container>
 
     <canvas id="gameboard" width="600" height="400" style="background-color: #C2DFFF; border: 1px solid black;"></canvas>
+    <video id="localVideo" autoplay muted style="width:40%;"></video>
+    <video id="remoteVideo" autoplay style="width:40%;"></video>
+    <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
 
+
+<!--
     <section class="experiment">
       <section>
 
@@ -42,13 +47,13 @@
           <button id="setup-new-room" class="setup">Setup New Conference</button>
       </section>
 
-      <!-- list of all available conferencing rooms -->
+      <!-- list of all available conferencing rooms
       <table style="width: 100%;" id="rooms-list"></table>
 
-      <!-- local/remote videos container -->
+      <!-- local/remote videos container
       <div id="videos-container"></div>
   </section>
-
+ -->
     <!-- <input type="button" id="start" onclick="start(true)" value="Start Video"></input> -->
 
     <p style="font-size:8px;color:gray;">Icons licensed from <a href="https://fontawesome.com/license/free">Font Awesome</a></p>
@@ -86,6 +91,9 @@
   <script src="database.js"></script>
   <script src="gameboard.js"></script>
   <script src="conference.js"></script>
-  <script src="new_webrtc.js"></script>
+  <!-- <script src="new_webrtc.js"></script> -->
+  <script type="text/javascript">
+        pageReady();	        
+    </script>
   </body>
 </html>
