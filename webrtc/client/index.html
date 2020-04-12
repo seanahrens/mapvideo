@@ -3,18 +3,51 @@
   <head>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="webrtc.js"></script>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
   </head>
 
-  <body>
+  <body onload="init();"">
+    <canvas id="gameboard" width="600" height="400" style="background-color: beige; border: 1px solid brown;"></canvas>
+
     <video id="localVideo" autoplay muted style="width:40%;"></video>
     <video id="remoteVideo" autoplay style="width:40%;"></video>
 
     <br />
 
     <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
-
     <script type="text/javascript">
-        pageReady();
+        /* pageReady(); */
     </script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+       https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyDOnKy-7VXVobK80o7PDRD78yUAmsGm8TQ",
+      authDomain: "mapvideo-ddb83.firebaseapp.com",
+      databaseURL: "https://mapvideo-ddb83.firebaseio.com",
+      projectId: "mapvideo-ddb83",
+      storageBucket: "mapvideo-ddb83.appspot.com",
+      messagingSenderId: "668501131869",
+      appId: "1:668501131869:web:4eeef32d46a0ff5f3583b4",
+      measurementId: "G-CWH9R6M3DG"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
+
+
+  <script src="database.js"></script>
+  <script src="gameboard.js"></script>
+
   </body>
 </html>
