@@ -55,6 +55,8 @@ var icons= [];
 
 // SET UP INITIAL GAMEBOARD STATE AND PAWN POSITIONS
 function init() {
+  onAuth(assignUserID,fail);
+
   stage = new createjs.Stage("gameboard");
 
 
@@ -89,10 +91,14 @@ function init() {
   loader.loadManifest(manifest, true, "");
 
   databaseInit(placePawns); // Call Initialize on the Database. Expect an Immediate Callback with Pawn Position Data. Place those pawns.
-  myUserID = getUserID();
+}
 
-
-
+function assignUserID(userID){
+  myUserID = userID;
+  myPawn = pawnMap[myUserID];
+}
+function fail(){
+  alert("Auth failed!");
 }
 
 
@@ -133,7 +139,7 @@ function placePawns(users){
   stage.update();
 
   // MyPawn = the current web users pawn. We make movement calls to this pawn.
-  myPawn = pawnMap[myUserID];
+  if (myUserID){ myPawn = pawnMap[myUserID]; };
 }
 
 
@@ -191,20 +197,22 @@ function handleKeyDown(e) {
 	if (!e) {
 		var e = window.event;
 	}
-	switch (e.keyCode) {
-		case KEYCODE_LEFT:
-      move(-1,0);
-			return false;
-		case KEYCODE_RIGHT:
-      move(1,0);
-			return false;
-		case KEYCODE_UP:
-      move(0,-1);
-			return false;
-    case KEYCODE_DOWN:
-      move(0,1);
-			return false;
-	}
+  if (myPawn){ // if we haven't yet placed or assigned current users pawn on the board, no movement makes sense
+  	switch (e.keyCode) {
+  		case KEYCODE_LEFT:
+        move(-1,0);
+  			return false;
+  		case KEYCODE_RIGHT:
+        move(1,0);
+  			return false;
+  		case KEYCODE_UP:
+        move(0,-1);
+  			return false;
+      case KEYCODE_DOWN:
+        move(0,1);
+  			return false;
+  	}
+  }
 }
 
 //
