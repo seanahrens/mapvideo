@@ -5,8 +5,6 @@ var BOARD_SQUARES_X = 30;
 var BOARD_SQUARES_Y = 20;
 var SQUARE_SIZE_IN_PIXELS = 20;
 
-//var colorsSimple = ["sizzlingred", "orange soda", "yellow", "green", "blue", "violet", "brown", "gray"];
-
 var colors = ["Lime",
   "GreenYellow",
   "MediumAquamarine",
@@ -27,7 +25,9 @@ var colors = ["Lime",
   "MediumPurple",
   "Indigo",
   "DarkSlateGray",
-  "DimGray"]
+  "DimGray"];
+//var colorsSimple = ["sizzlingred", "orange soda", "yellow", "green", "blue", "violet", "brown", "gray"];
+
 
 // HANDLE KEY PRESSES
 document.onkeydown = handleKeyDown;
@@ -45,26 +45,9 @@ for(var i=0; i<BOARD_SQUARES_X; i++) {
   }
 }
 
-// USER OBJECTS (REPLACE W/ QUERYSNAPSHOTS)
-// how do we tie user in DB to which user in the browser? some session ID? IP?
-var users = {
-  "a32sdfd": {
-    x: 0,
-    y: 0
-  },
-  "301n5od": {
-    x: 5,
-    y: 8
-  },
-  "e1ndkks": {
-    x: 4,
-    y: 6
-  }
-};
-
 var pawnMap = {};
-var myUserID; // = "301n5od";
 var myPawn;
+var myUserID;
 
 var stage;
 
@@ -73,16 +56,17 @@ var stage;
 function init() {
   stage = new createjs.Stage("gameboard");
 
-  databaseInit(placePawns);
+  databaseInit(placePawns); // Call Initialize on the Database. Expect an Immediate Callback with Pawn Position Data. Place those pawns.
   myUserID = getUserID();
 }
 
 
 
-
+// PLACE PAWNS ON THE BOARD GIVEN COORDINATE DATA (Called initially, and repeatedly)
 function placePawns(users){
   Object.keys(users).forEach(user_id => {
     let coords = users[user_id];
+
     if (isInBounds(coords.x,coords.y)){ // ignore any off-board positions in the db
 
       pawn = pawnMap[user_id];
@@ -104,6 +88,7 @@ function placePawns(users){
   });
   stage.update();
 
+  // MyPawn = the current web users pawn. We make movement calls to this pawn.
   myPawn = pawnMap[myUserID];
 }
 
@@ -111,7 +96,6 @@ function placePawns(users){
 
 // MOVE PAWN (MAKING SURE IT'S A VALID MOVE)
 function move(x,y){
-  console.log(myUserID);
   console.log(myPawn);
 
   oldX = PixelToSquare(myPawn.x);
@@ -126,11 +110,10 @@ function move(x,y){
     myPawn.x = SquareToPixel(newX);
     myPawn.y = SquareToPixel(newY);
 
-    // TO DO INTEGRATE:
-    // updateUserPosition({
-    //   x: newX,
-    //   y: newY;
-    // });
+    updateUserPosition({
+      x: newX,
+      y: newY;
+    });
 
     stage.update();
   }
