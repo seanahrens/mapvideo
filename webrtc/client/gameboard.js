@@ -5,26 +5,29 @@ var BOARD_SQUARES_X = 30;
 var BOARD_SQUARES_Y = 20;
 var SQUARE_SIZE_IN_PIXELS = 20;
 
+//var colorsSimple = ["sizzlingred", "orange soda", "yellow", "green", "blue", "violet", "brown", "gray"];
 
-// USER OBJECTS (REPLACE W/ QUERYSNAPSHOTS)
-// how do we tie user in DB to which user in the browser? some session ID? IP?
-var users = {
-  1: {
-    color: "red",
-    x: 0,
-    y: 0
-  },
-  2: {
-    color: "green",
-    x: 5,
-    y: 8
-  },
-  3: {
-    color: "blue",
-    x: 4,
-    y: 6
-  }
-};
+var colors = ["Lime",
+  "GreenYellow",
+  "MediumAquamarine",
+  "DarkGreen",
+  "Aqua",
+  "Aquamarine",
+  "LightSeaGreen",
+  "Teal",
+  "DeepPink",
+  "Pink",
+  "DarkRed",
+  "Red",
+  "LightSalmon",
+  "Orange",
+  "DarkKhaki",
+  "SaddleBrown",
+  "SandyBrown",
+  "MediumPurple",
+  "Indigo",
+  "DarkSlateGray",
+  "DimGray"]
 
 // HANDLE KEY PRESSES
 document.onkeydown = handleKeyDown;
@@ -42,36 +45,74 @@ for(var i=0; i<BOARD_SQUARES_X; i++) {
   }
 }
 
-var pawn;
+// USER OBJECTS (REPLACE W/ QUERYSNAPSHOTS)
+// how do we tie user in DB to which user in the browser? some session ID? IP?
+var users = {
+  "a32sdfd": {
+    x: 0,
+    y: 0
+  },
+  "301n5od": {
+    x: 5,
+    y: 8
+  },
+  "e1ndkks": {
+    x: 4,
+    y: 6
+  }
+};
+
+var pawnMap = {};
+var myUserID = "301n5od";
+var myPawn;
+
 var stage;
+
 
 // SET UP INITIAL GAMEBOARD STATE AND PAWN POSITIONS
 function init() {
   stage = new createjs.Stage("gameboard");
 
-  Object.keys(users).forEach(user_id => {
-    var user = users[user_id];
-    let color = user.color;
-    let x = user.x;
-    let y = user.y;
+  // TO DO INTEGRATE:
+  // Database.init(placePawns(users));
+  // myUserID = Database.getUserID();
 
-    // Initial Creation & Placement of Circle
-    pawn = new createjs.Shape();
-    pawn.graphics.beginFill(color).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
-    pawn.x = toPixel(x);
-    pawn.y = toPixel(y);
-    is_legal_square[x][y] = false; //prevent others from moving here
-    stage.addChild(pawn);
-  });
+  placePawns(users);
 
   stage.update();
 }
 
 
+
+
+function placePawns(users){
+  Object.keys(users).forEach(user_id => {
+    let coords = users[user_id];
+    pawn = pawnMap[user_id];
+    if (!pawn){ // if pawn does not exist, lets create it and add it to the board
+      pawn = new createjs.Shape();
+      pawn.graphics.beginFill(determineColor(user_id)).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
+      stage.addChild(pawn);
+      pawnMap[user_id] = pawn;
+    }
+
+    // Set/Update All Pawn Positions
+    pawn.x = SquareToPixel(coords.x);
+    pawn.y = SquareToPixel(coords.y);
+
+    //Prevent others from moving here
+    is_legal_square[coords.x][coords.y] = false;
+  });
+
+  myPawn = pawnMap[myUserID];
+}
+
+
+
 // MOVE PAWN (MAKING SURE IT'S A VALID MOVE)
 function move(x,y){
-  oldX = PixelToSquare(pawn.x);
-  oldY = PixelToSquare(pawn.y);
+  oldX = PixelToSquare(myPawn.x);
+  oldY = PixelToSquare(myPawn.y);
   newX = oldX + x;
   newY = oldY + y;
 
@@ -79,9 +120,14 @@ function move(x,y){
     is_legal_square[oldX][oldY]=true; //mark old spot as free
     is_legal_square[newX][newY]=false; //mark new spot as occupied
 
-    pawn.x = SquareToPixel(newX);
-    pawn.y = SquareToPixel(newY);
-    // TO DO: MAKE THIS MOVE WITH THE DATABASE;
+    myPawn.x = SquareToPixel(newX);
+    myPawn.y = SquareToPixel(newY);
+
+    // TO DO INTEGRATE:
+    // updateUserPosition({
+    //   x: newX,
+    //   y: newY;
+    // });
 
     stage.update();
   }
@@ -100,7 +146,9 @@ function PixelToSquare(z){
   return (z-(SQUARE_SIZE_IN_PIXELS/2))/SQUARE_SIZE_IN_PIXELS;
 }
 
-
+function determineColor(string){
+  return colors[string.charCodeAt(1) % (colors.length)];
+}
 
 // HANDLE KEYBOARD INPUT
 function handleKeyDown(e) {
