@@ -63,7 +63,7 @@ var users = {
 };
 
 var pawnMap = {};
-var myUserID = "301n5od";
+var myUserID; // = "301n5od";
 var myPawn;
 
 var stage;
@@ -73,13 +73,8 @@ var stage;
 function init() {
   stage = new createjs.Stage("gameboard");
 
-  // TO DO INTEGRATE:
-  // Database.init(placePawns(users));
-  // myUserID = Database.getUserID();
-
-  placePawns(users);
-
-  stage.update();
+  databaseInit(placePawns);
+  myUserID = getUserID();
 }
 
 
@@ -88,21 +83,26 @@ function init() {
 function placePawns(users){
   Object.keys(users).forEach(user_id => {
     let coords = users[user_id];
-    pawn = pawnMap[user_id];
-    if (!pawn){ // if pawn does not exist, lets create it and add it to the board
-      pawn = new createjs.Shape();
-      pawn.graphics.beginFill(determineColor(user_id)).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
-      stage.addChild(pawn);
-      pawnMap[user_id] = pawn;
+    if (isInBounds(coords.x,coords.y)){ // ignore any off-board positions in the db
+
+      pawn = pawnMap[user_id];
+      if (!pawn){ // if pawn does not exist, lets create it and add it to the board
+        pawn = new createjs.Shape();
+        pawn.graphics.beginFill(determineColor(user_id)).drawCircle(0, 0, SQUARE_SIZE_IN_PIXELS/2);
+        stage.addChild(pawn);
+        pawnMap[user_id] = pawn;
+      }
+
+      // Set/Update All Pawn Positions
+      pawn.x = SquareToPixel(coords.x);
+      pawn.y = SquareToPixel(coords.y);
+
+      //Prevent others from moving here
+      is_legal_square[coords.x][coords.y] = false;
+
     }
-
-    // Set/Update All Pawn Positions
-    pawn.x = SquareToPixel(coords.x);
-    pawn.y = SquareToPixel(coords.y);
-
-    //Prevent others from moving here
-    is_legal_square[coords.x][coords.y] = false;
   });
+  stage.update();
 
   myPawn = pawnMap[myUserID];
 }
@@ -111,6 +111,9 @@ function placePawns(users){
 
 // MOVE PAWN (MAKING SURE IT'S A VALID MOVE)
 function move(x,y){
+  console.log(myUserID);
+  console.log(myPawn);
+
   oldX = PixelToSquare(myPawn.x);
   oldY = PixelToSquare(myPawn.y);
   newX = oldX + x;
@@ -147,7 +150,7 @@ function PixelToSquare(z){
 }
 
 function determineColor(string){
-  return colors[string.charCodeAt(1) % (colors.length)];
+  return colors[string.charCodeAt(string.length-1) % (colors.length)];
 }
 
 // HANDLE KEYBOARD INPUT
