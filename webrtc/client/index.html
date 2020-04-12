@@ -16,37 +16,34 @@
         pageReady();
     </script>
 
-    <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
 
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-    <script src="/https://www.gstatic.com/firebase/7.14.0/firebase-app.js"></script>
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+       https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
 
-    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
-    <script src="/https://www.gstatic.com/firebase/7.14.0/firebase-analytics.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyDOnKy-7VXVobK80o7PDRD78yUAmsGm8TQ",
+      authDomain: "mapvideo-ddb83.firebaseapp.com",
+      databaseURL: "https://mapvideo-ddb83.firebaseio.com",
+      projectId: "mapvideo-ddb83",
+      storageBucket: "mapvideo-ddb83.appspot.com",
+      messagingSenderId: "668501131869",
+      appId: "1:668501131869:web:4eeef32d46a0ff5f3583b4",
+      measurementId: "G-CWH9R6M3DG"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
 
-    <!-- Add Firebase products that you want to use -->
-    <script src="/https://www.gstatic.com/firebase/7.14.0/firebase-auth.js"></script>
-    <script src="/https://www.gstatic.com/firebase/7.14.0/firebase-database.js"></script>
-    <!-- <script src="/https://www.gstatic.com/firebase/init.js"></script> -->
 
-    
-    <script>
-      // Your web app's Firebase configuration
-      var firebaseConfig = {
-        apiKey: "AIzaSyDOnKy-7VXVobK80o7PDRD78yUAmsGm8TQ",
-        authDomain: "mapvideo-ddb83.firebaseapp.com",
-        databaseURL: "https://mapvideo-ddb83.firebaseio.com",
-        projectId: "mapvideo-ddb83",
-        storageBucket: "mapvideo-ddb83.appspot.com",
-        messagingSenderId: "668501131869",
-        appId: "1:668501131869:web:4eeef32d46a0ff5f3583b4",
-        measurementId: "G-CWH9R6M3DG"
-      };
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      firebase.analytics();
-    </script>
-    <script src="test.js"></script>
+  <script src="database.js"></script>
 
   </body>
 </html>
