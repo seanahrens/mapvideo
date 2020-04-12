@@ -1,7 +1,9 @@
 var localVideo;
+var otherVideos;
 var localStream;
-var remoteVideo;
-var peerConnection;
+
+
+var peerConnections = [];
 var uuid;
 var serverConnection;
 
@@ -14,9 +16,10 @@ var peerConnectionConfig = {
 
 function pageReady() {
   uuid = createUUID();
+  console.log("OWN UUID", uuid)
 
   localVideo = document.getElementById('localVideo');
-  remoteVideo = document.getElementById('remoteVideo');
+  otherVideos = document.getElementById('otherVideos');
 
   const ws_port = fetch('/websockets_port')
     .then((response) => {
@@ -37,7 +40,10 @@ function connectWebsocket(port) {
   };
 
   if (navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then(getUserMediaSuccess)
+      .catch(errorHandler("getUserMedia"));
   } else {
     alert('Your browser does not support getUserMedia API');
   }
@@ -49,58 +55,104 @@ function getUserMediaSuccess(stream) {
   localVideo.srcObject = stream;
 }
 
-function start(isCaller) {
-  peerConnection = new RTCPeerConnection(peerConnectionConfig);
-  peerConnection.onicecandidate = gotIceCandidate;
-  peerConnection.ontrack = gotRemoteStream;
-  peerConnection.addStream(localStream);
+function start(isCaller, id) {
+  console.log("START", isCaller, id)
+  if(isCaller || !peerConnections[id]){
+    pc = new RTCPeerConnection(peerConnectionConfig);
+    pc.onicecandidate = gotIceCandidate;
+    pc.ontrack = gotRemoteStream;
+    pc.addStream(localStream);
+    console.log("added local stream", localStream)
+    if(isCaller){
+      peerConnections[uuid] = pc;
+    } else {
+      peerConnections[id] = pc
+    }
+  }
 
   if (isCaller) {
-    peerConnection.createOffer().then(createdDescription).catch(errorHandler);
+    peerConnections[uuid].createOffer().then(createdDescription(uuid))
+    .catch(errorHandler("CreateOfferStart"));
   }
 }
 
 function gotMessageFromServer(message) {
-  if (!peerConnection) start(false);
-
+  
   var signal = JSON.parse(message.data);
-
+  
   // Ignore messages from ourself
   if (signal.uuid == uuid) return;
+  console.log("Message from server", signal)
 
+  start(false, signal.uuid);
+  
   if (signal.sdp) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
+    peerConnections[signal.uuid].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
       // Only create answers in response to offers
       if (signal.sdp.type == 'offer') {
-        peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
+        peerConnections[signal.uuid].createAnswer().then(createdDescription(signal.uuid))
+        .catch(errorHandler("CreateSdpAnswer"));
       }
-    }).catch(errorHandler);
+    })
+    .catch(errorHandler);
   } else if (signal.ice) {
-    peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
+    var candidate = new RTCIceCandidate(signal.ice);
+    // var receivers = peerConnections[signal.uuid].getReceivers();
+  
+    // console.log("we have ", receivers.length, " receivers");
+    // console.log(receivers)
+  
+  
+    peerConnections[signal.uuid].addIceCandidate(signal.ice)
+      .catch(errorHandler("AddIceCandidate"));
+
+
+
   }
 }
 
 function gotIceCandidate(event) {
+  console.log("got ice candidate", event)
   if (event.candidate != null) {
     serverConnection.send(JSON.stringify({ 'ice': event.candidate, 'uuid': uuid }));
   }
 }
 
-function createdDescription(description) {
-  console.log('got description');
-
-  peerConnection.setLocalDescription(description).then(function () {
-    serverConnection.send(JSON.stringify({ 'sdp': peerConnection.localDescription, 'uuid': uuid }));
-  }).catch(errorHandler);
+function createdDescription(id) {
+  return function (description) {
+    console.log('got description', description);
+    console.log(peerConnections)
+    peerConnections[id].setLocalDescription(description).then(function () {
+      serverConnection
+        .send(JSON.stringify({ 'sdp': description, 'uuid': uuid }));
+    })
+    .catch(errorHandler("setLocalDescription"));
 }
+}
+
+function createVideoElement() {
+  console.log("Creating video element")
+  var video = document.createElement("video");
+  video.style = "width:40%"
+  video.autoplay = true;
+  otherVideos.appendChild(video);
+  return video;
+}
+
 
 function gotRemoteStream(event) {
-  console.log('got remote stream');
-  remoteVideo.srcObject = event.streams[0];
+  console.log("Got remote stream" ,event)
+  if (event.track.kind == "video"){
+    var remoteVideo = createVideoElement()
+    localVideo.srcObject = event.streams[0];
+  }
 }
 
-function errorHandler(error) {
-  console.log(error);
+function errorHandler(where){
+  return function(error) {
+    // throw error
+    console.error(where,"---", error);
+  }
 }
 
 // Taken from http://stackoverflow.com/a/105074/515584
@@ -110,5 +162,6 @@ function createUUID() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   }
 
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  // return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  return s4();
 }
